@@ -1,6 +1,7 @@
 {
 	"name": "svelteth",
 	"version": "0.0.1",
+	"license": "MIT",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && npm run prepack",
@@ -33,10 +34,13 @@
 		"svelte": "^5.0.0"
 	},
 	"devDependencies": {
+		"@metamask/providers": "^22.1.0",
 		"@sveltejs/adapter-auto": "^6.0.0",
 		"@sveltejs/kit": "^2.16.0",
 		"@sveltejs/package": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^5.0.0",
+		"@types/web3": "^1.0.20",
+		"eip1193-types": "^0.2.2",
 		"prettier": "^3.4.2",
 		"prettier-plugin-svelte": "^3.3.3",
 		"publint": "^0.3.2",
@@ -47,5 +51,8 @@
 	},
 	"keywords": [
 		"svelte"
-	]
+	],
+	"dependencies": {
+		"ethers": "^6.15.0"
+	}
 }
