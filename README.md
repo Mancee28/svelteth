@@ -1,58 +1,59 @@
-# Svelte library
+# Svelteth
 
-Everything you need to build a Svelte library, powered by [`sv`](https://npmjs.com/package/sv).
+**Svelteth** is an open-source library designed to simplify and amplify Web3 adoption in Svelte 5 projects. By leveraging Svelte's reactivity, Svelteth makes it easy to connect, manage, and interact with Ethereum wallets and providers in your Svelte applications.
 
-Read more about creating a library [in the docs](https://svelte.dev/docs/kit/packaging).
+## Features
 
-## Creating a project
+- 🔗 **Easy Wallet Connection**: Seamlessly connect to Ethereum wallets using EIP-6963.
+- ⚡ **Reactive State**: All wallet and provider states are fully reactive, thanks to Svelte 5.
+- 🦊 **Multi-Wallet Support**: Detect and connect to multiple wallet extensions.
+- 🛡️ **TypeScript Support**: Fully typed for safety and autocompletion.
+- 🧩 **Composable**: Use as Svelte components or state modules.
 
-If you're seeing this, you've probably already done this step. Congrats!
-
-```bash
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## Installation
 
 ```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+npm install svelteth
 ```
 
-Everything inside `src/lib` is part of your library, everything inside `src/routes` can be used as a showcase or preview app.
+## Usage
 
-## Building
+Import the `Wallet` component and add it to your Svelte page:
 
-To build your library:
+```svelte
+<script lang="ts">
+    import { Wallet } from 'svelteth';
+</script>
 
-```bash
-npm run package
+<Wallet />
 ```
 
-To create a production version of your showcase app:
+Or use the reactive wallet state and actions directly:
 
-```bash
-npm run build
+```typescript
+import { wallet, connectWallet, disconnectWallet } from 'svelteth';
 ```
 
-You can preview the production build with `npm run preview`.
+## Example
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+```svelte
+<script lang="ts">
+    import { Wallet } from 'svelteth';
+</script>
 
-## Publishing
-
-Go into the `package.json` and give your package the desired name through the `"name"` option. Also consider adding a `"license"` field and point it to a `LICENSE` file which you can create from a template (one popular option is the [MIT license](https://opensource.org/license/mit/)).
-
-To publish your library to [npm](https://www.npmjs.com):
-
-```bash
-npm publish
+<Wallet />
 ```
+
+## Why Svelteth?
+
+- **Simplifies Web3 integration** in Svelte apps.
+- **Reactive by design**: All wallet and provider changes update your UI instantly.
+- **Extensible**: Use your own UI or the provided components.
+
+## License
+
+MIT
+
+---
+
+Made with ❤️ for the Svelte and Web3 communities.

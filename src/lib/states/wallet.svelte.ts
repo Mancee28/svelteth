@@ -46,9 +46,8 @@ export async function connectWallet(w: EIP6963ProviderDetail) {
 
 		const eth      = w.provider as EIP1193Provider;
 
-		let accounts: string[] = [];
 		try {
-			accounts = await eth.request({ method: 'eth_requestAccounts' }) as string[];
+			const accounts = await eth.request({ method: 'eth_requestAccounts' }) as string[];
 
 			if (accounts.length === 0) {
 				throw new Error('No accounts found. Please ensure you have an account in your wallet.');
@@ -94,9 +93,9 @@ export async function connectWallet(w: EIP6963ProviderDetail) {
 			}
 		});
 
-		localStorage.setItem('walletRDNS', w.info.rdns);
+	localStorage.setItem('walletRDNS', w.info.rdns);
 
-
+	connecting = false;
 }
 
 export function isConnecting() {

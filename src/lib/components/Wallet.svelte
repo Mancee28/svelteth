@@ -33,6 +33,9 @@
                 <img src={wallet.info.icon} alt={wallet.info.name} />
             </div>
             <div>
+                <div>
+                    <img src={blockies.create({ seed: wallet.address, size: 8, scale: 4 }).toDataURL()} alt="Blockie Icon" />
+                </div>
                 <div>{wallet.info.name}</div>
                 <div>
                     <div>
