@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Wallet from '$components/Wallet.svelte';
+	import Wallet from '$components/Wallet.svelte';
 </script>
 
-<Wallet theme={'dark'}/>
+<Wallet theme={'dark'} />

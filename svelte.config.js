@@ -17,8 +17,8 @@ const config = {
 			$states: 'src/lib/states',
 			$types: 'src/lib/types',
 			$styles: 'src/lib/styles',
-			$utils: 'src/lib/utils',
-		},
+			$utils: 'src/lib/utils'
+		}
 	}
 };
 

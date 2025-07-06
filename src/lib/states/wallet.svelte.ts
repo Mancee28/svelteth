@@ -23,12 +23,12 @@ export let wallet = $state<WalletState>({
 	isConnected: false
 });
 
-export let walletError = $state<{message: string, code?: string}>({message: ''});
+export let walletError = $state<{ message: string; code?: string }>({ message: '' });
 
 let connecting = $state(false);
 
 export function handleAnnounceProvider(e: CustomEvent<EIP6963ProviderDetail>) {
-	if (!availableWallets.list.some(p => p.info.uuid === e.detail.info.uuid)) {
+	if (!availableWallets.list.some((p) => p.info.uuid === e.detail.info.uuid)) {
 		availableWallets.list = [...availableWallets.list, e.detail];
 	}
 
@@ -36,59 +36,57 @@ export function handleAnnounceProvider(e: CustomEvent<EIP6963ProviderDetail>) {
 	if (rdns && e.detail.info.rdns === rdns) {
 		connectWallet(e.detail);
 	}
-
 }
 
 export async function connectWallet(w: EIP6963ProviderDetail) {
-	if (connecting) return;          
+	if (connecting) return;
 	connecting = true;
 
 	walletError.message = '';
-    walletError.code = undefined;
+	walletError.code = undefined;
 
-		const eth = w.provider as EIP1193Provider;
+	const eth = w.provider as EIP1193Provider;
 
-		try {
-			const accounts = await eth.request({ method: 'eth_requestAccounts' }) as string[];
+	try {
+		const accounts = (await eth.request({ method: 'eth_requestAccounts' })) as string[];
 
-			if (accounts.length === 0) {
-				throw new Error('No accounts found. Please ensure you have an account in your wallet.');
-			}
-		} catch (err: any) {
-			connecting = false;
-			walletError.message = err?.message || 'Failed to connect wallet';
-			walletError.code = err?.code;
-			return;
+		if (accounts.length === 0) {
+			throw new Error('No accounts found. Please ensure you have an account in your wallet.');
 		}
+	} catch (err: any) {
+		connecting = false;
+		walletError.message = err?.message || 'Failed to connect wallet';
+		walletError.code = err?.code;
+		return;
+	}
 
-		const bp 	   = new ethers.BrowserProvider(eth);
-		const signer   = await bp.getSigner();
-		const address  = await signer.getAddress();
-		const chain    = await bp.getNetwork();
+	const bp = new ethers.BrowserProvider(eth);
+	const signer = await bp.getSigner();
+	const address = await signer.getAddress();
+	const chain = await bp.getNetwork();
 
-		wallet.info           = w.info;
-		wallet.provider       = eth;
-		wallet.ethersProvider = bp;
-		wallet.address		  = address;
-		wallet.balance        = (await bp.getBalance(address));
-		wallet.chainId        = chain.chainId;
+	wallet.info = w.info;
+	wallet.provider = eth;
+	wallet.ethersProvider = bp;
+	wallet.address = address;
+	wallet.balance = await bp.getBalance(address);
+	wallet.chainId = chain.chainId;
 
-
-		eth.on('accountsChanged', async (accounts: string[]) => {
-			if (accounts.length > 0 && wallet.isConnected) {
-				wallet.address = accounts[0];
-				wallet.ethersProvider = new ethers.BrowserProvider(wallet.provider);
-				wallet.balance = (await wallet.ethersProvider.getBalance(wallet.address)); 
-			} else if (wallet.address){
-				disconnectWallet();
-			}
-		});
-
-		eth.on('chainChanged', async (chainId: string) => {
-			wallet.chainId = BigInt(chainId);
+	eth.on('accountsChanged', async (accounts: string[]) => {
+		if (accounts.length > 0 && wallet.isConnected) {
+			wallet.address = accounts[0];
 			wallet.ethersProvider = new ethers.BrowserProvider(wallet.provider);
-			wallet.balance = (await wallet.ethersProvider.getBalance(wallet.address));
-		});
+			wallet.balance = await wallet.ethersProvider.getBalance(wallet.address);
+		} else if (wallet.address) {
+			disconnectWallet();
+		}
+	});
+
+	eth.on('chainChanged', async (chainId: string) => {
+		wallet.chainId = BigInt(chainId);
+		wallet.ethersProvider = new ethers.BrowserProvider(wallet.provider);
+		wallet.balance = await wallet.ethersProvider.getBalance(wallet.address);
+	});
 
 	localStorage.setItem('walletRDNS', w.info.rdns);
 
@@ -101,10 +99,11 @@ export function isConnecting() {
 }
 
 export async function disconnectWallet() {
-
-	await wallet.ethersProvider.send('wallet_revokePermissions', [{
-		eth_accounts: {}
-	}]);
+	await wallet.ethersProvider.send('wallet_revokePermissions', [
+		{
+			eth_accounts: {}
+		}
+	]);
 
 	wallet.info = { uuid: '', name: '', icon: '', rdns: '' };
 	wallet.provider = {} as EIP1193Provider;

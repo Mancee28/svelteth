@@ -22,7 +22,7 @@ Import the `Wallet` component and add it to your Svelte page:
 
 ```svelte
 <script lang="ts">
-    import { Wallet } from 'svelteth';
+	import { Wallet } from 'svelteth';
 </script>
 
 <Wallet />
@@ -38,7 +38,7 @@ import { wallet, connectWallet, disconnectWallet } from 'svelteth';
 
 ```svelte
 <script lang="ts">
-    import { Wallet } from 'svelteth';
+	import { Wallet } from 'svelteth';
 </script>
 
 <Wallet />
