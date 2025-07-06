@@ -1,6 +1,7 @@
 {
 	"name": "svelteth",
 	"version": "0.2.0",
+	"description": "Web3 development for the rest of us. A Svelte library for building Ethereum dApps with ease.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
