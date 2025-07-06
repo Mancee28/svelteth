@@ -25,23 +25,13 @@ Import the `Wallet` component and add it to your Svelte page:
 	import { Wallet } from 'svelteth';
 </script>
 
-<Wallet />
+<Wallet theme={'dark'}/>
 ```
 
 Or use the reactive wallet state and actions directly:
 
 ```typescript
 import { wallet, connectWallet, disconnectWallet } from 'svelteth';
-```
-
-## Example
-
-```svelte
-<script lang="ts">
-	import { Wallet } from 'svelteth';
-</script>
-
-<Wallet />
 ```
 
 ## Why Svelteth?
