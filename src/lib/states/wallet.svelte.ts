@@ -5,9 +5,10 @@ import { ethers } from 'ethers';
 
 export interface WalletState extends EIP6963ProviderDetail {
 	ethersProvider: BrowserProvider;
-	address?: string;
-	balance: string;
+	address: string;
+	balance?: bigint;
 	chainId?: bigint;
+	isConnected: boolean;
 }
 
 export let availableWallets = $state<{ list: EIP6963ProviderDetail[] }>({ list: [] });
@@ -16,9 +17,10 @@ export let wallet = $state<WalletState>({
 	info: { uuid: '', name: '', icon: '', rdns: '' },
 	provider: {} as EIP1193Provider,
 	ethersProvider: {} as ethers.BrowserProvider,
-	address: undefined,
-	balance: '',
-	chainId: undefined
+	address: '',
+	balance: undefined,
+	chainId: undefined,
+	isConnected: false
 });
 
 export let walletError = $state<{message: string, code?: string}>({message: ''});
@@ -44,7 +46,7 @@ export async function connectWallet(w: EIP6963ProviderDetail) {
 	walletError.message = '';
     walletError.code = undefined;
 
-		const eth      = w.provider as EIP1193Provider;
+		const eth = w.provider as EIP1193Provider;
 
 		try {
 			const accounts = await eth.request({ method: 'eth_requestAccounts' }) as string[];
@@ -68,34 +70,30 @@ export async function connectWallet(w: EIP6963ProviderDetail) {
 		wallet.provider       = eth;
 		wallet.ethersProvider = bp;
 		wallet.address		  = address;
-		wallet.balance        = (await bp.getBalance(address)).toString();
+		wallet.balance        = (await bp.getBalance(address));
 		wallet.chainId        = chain.chainId;
 
 
 		eth.on('accountsChanged', async (accounts: string[]) => {
-			if (accounts.length > 0) {
+			if (accounts.length > 0 && wallet.isConnected) {
 				wallet.address = accounts[0];
 				wallet.ethersProvider = new ethers.BrowserProvider(wallet.provider);
-				wallet.balance = (await wallet.ethersProvider.getBalance(wallet.address)).toString(); 
-			} else {
+				wallet.balance = (await wallet.ethersProvider.getBalance(wallet.address)); 
+			} else if (wallet.address){
 				disconnectWallet();
 			}
 		});
 
 		eth.on('chainChanged', async (chainId: string) => {
 			wallet.chainId = BigInt(chainId);
-			wallet.balance = 'Loading...'; 
 			wallet.ethersProvider = new ethers.BrowserProvider(wallet.provider);
-			if (wallet.address) {
-				wallet.balance = (await wallet.ethersProvider.getBalance(wallet.address)).toString();
-			} else {
-				wallet.balance = 'Failed to Load';
-			}
+			wallet.balance = (await wallet.ethersProvider.getBalance(wallet.address));
 		});
 
 	localStorage.setItem('walletRDNS', w.info.rdns);
 
 	connecting = false;
+	wallet.isConnected = true;
 }
 
 export function isConnecting() {
@@ -111,9 +109,10 @@ export async function disconnectWallet() {
 	wallet.info = { uuid: '', name: '', icon: '', rdns: '' };
 	wallet.provider = {} as EIP1193Provider;
 	wallet.ethersProvider = {} as ethers.BrowserProvider;
-	wallet.address = undefined;
-	wallet.balance = '';
+	wallet.address = '';
+	wallet.balance = undefined;
 	wallet.chainId = undefined;
+	wallet.isConnected = false;
 
 	localStorage.removeItem('walletRDNS');
 }

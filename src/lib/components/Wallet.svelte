@@ -1,92 +1,127 @@
 <script lang="ts">
+	import { getChainInfo } from "$lib/chain/index.js";
     import { availableWallets, connectWallet, disconnectWallet, handleAnnounceProvider, isConnecting, wallet, walletError } 
     from "$states/wallet.svelte.js";
-    import blockies from 'ethereum-blockies';
+	import { formatEth } from "$utils/index.js";
     import { onMount } from "svelte";
+    
+    /** Theme option for the wallet component */
+    let { theme = 'dark' }: { theme?: 'dark' | 'light' } = $props();
     
     /** Internal helper: shorten an ETH address */
     const shorten = (addr: string) => addr.slice(0, 6) + "…" + addr.slice(-4);
 
     let loading = $state(true);
 
+    let ethBalance = $derived(formatEth(wallet.balance ?? 0n));
+
+    let chainInfo = $derived(getChainInfo(wallet.chainId));
+
     onMount(() => {
         window.addEventListener('eip6963:announceProvider', handleAnnounceProvider);
 
         window.dispatchEvent(new Event('eip6963:requestProvider'));
 
-        const timeout = setTimeout(() => {
+        const loadingTimeout = setTimeout(() => {
             loading = false;
         }, 2000);
 
         return () => {
             window.removeEventListener('eip6963:announceProvider', handleAnnounceProvider);
-            clearTimeout(timeout);
+            clearTimeout(loadingTimeout);
         };
     });
 </script>
 
-<div>
-    {#if wallet.address && wallet.chainId}
-        <div>
-            <div>
+<div class="wallet-component {theme}">
+    {#if wallet.isConnected}
+        <div class="wallet-container">
+            <div class="wallet-header">
                 <h2>Connected Wallet</h2>
-                <img src={wallet.info.icon} alt={wallet.info.name} />
+                <img src={wallet.info.icon} alt={wallet.info.name} class="wallet-icon" />
             </div>
-            <div>
-                <div>
-                    <img src={blockies.create({ seed: wallet.address, size: 8, scale: 4 }).toDataURL()} alt="Blockie Icon" />
-                </div>
-                <div>{wallet.info.name}</div>
-                <div>
-                    <div>
-                        <span>Chain ID:</span>
-                        <span>{wallet.chainId}</span>
-                        <span>Address:</span>
-                        <span>{shorten(wallet.address)}</span>
-                        <div>
-                            <div>
-                                <span>WEI:</span>
-                                <span>{wallet.balance}</span>
+            <div class="wallet-info">
+                <div class="wallet-name">{wallet.info.name}</div>
+                <div class="wallet-card">
+                    <div class="wallet-details">
+                        <div class="wallet-detail">
+                            <span class="detail-label">Chain:</span>
+                            <img src={chainInfo.logo} alt={chainInfo.name} class="chain-logo" />
+                            <span class="detail-value">{chainInfo.name}</span>
+                        </div>
+
+                        <div class="wallet-detail">
+                            <span class="detail-label">Address:</span>
+                            <span class="detail-value address">{shorten(wallet.address)}</span>
+                        </div>
+                        
+                        <div class="balance-container">
+                            <div class="wallet-detail">
+                                <span class="detail-label">ETH:</span>
+                                <span class="detail-value address">{ethBalance}</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div>
-                <button onclick={disconnectWallet}>
+            <div class="wallet-actions">
+                <button 
+                    onclick={disconnectWallet}
+                    class="disconnect-button"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="button-icon" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd" />
+                    </svg>
                     Disconnect
                 </button>
             </div>
         </div>
     {:else}
-        <div>
-            <h2>Connect Wallet</h2>
+        <div class="wallet-container">
+            <h2 class="connect-header">Connect Wallet</h2>
             {#if walletError.message}
-                <div>
-                    <p>Error: {walletError.message}</p>
+                <div class="error-container">
+                    <p class="error-message">Error: {walletError.message}</p>
                     {#if walletError.code}
-                        <p>Code: {walletError.code}</p>
+                        <p class="error-code">Code: {walletError.code}</p>
                     {/if}
                 </div>
             {/if}
             {#if availableWallets.list.length === 0}
-                <div>
+                <div class="empty-state">
                     {#if loading}
-                        <div></div>
-                        <p>Detecting wallets...</p>
+                        <div class="loading-spinner"></div>
+                        <p class="loading-text">Detecting wallets...</p>
                     {:else}
-                        <p>No wallets found. Please install a wallet extension.</p>
+                        <div class="no-wallet-message">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="warning-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <p>No wallets found. Please install a wallet extension.</p>
+                        </div>
                     {/if}
                 </div>
             {:else}
-                <div>
+                <div class="wallets-list">
                     {#each availableWallets.list as aWallet}
-                        <div>
-                            <img src={aWallet.info.icon} alt={aWallet.info.name} />
-                            <span>{aWallet.info.name}</span>
-                            <button onclick={() => connectWallet(aWallet)} disabled={isConnecting()}>
+                        <div class="wallet-item">
+                            <div class="wallet-item-info">
+                                <img src={aWallet.info.icon} alt={aWallet.info.name} class="wallet-item-icon" />
+                                <span class="wallet-item-name">{aWallet.info.name}</span>
+                            </div>
+                            <button 
+                                onclick={() => connectWallet(aWallet)} 
+                                disabled={isConnecting()}
+                                class="connect-button"
+                            >
                                 {#if isConnecting()}
-                                    <span>Loading...</span>
+                                    <span class="loading-state">
+                                        <svg class="loading-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Loading...
+                                    </span>
                                 {:else}
                                     Connect
                                 {/if}
@@ -98,3 +133,282 @@
         </div>
     {/if}
 </div>
+
+<style>
+    /* Base Styles */
+    .wallet-component {
+        --bg-primary: white;
+        --bg-secondary: #f9fafb;
+        --bg-hover: #f3f4f6;
+        --text-primary: #1f2937;
+        --text-secondary: #6b7280;
+        --border-color: #e5e7eb;
+        --border-accent: #d1d5db;
+        --error-bg: #fee2e2;
+        --error-border: #fecaca;
+        --error-text: #ef4444;
+        
+        width: 100%;
+        max-width: 28rem;
+        margin: 0 auto;
+        border-radius: 0.75rem;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        border: 1px solid var(--border-color);
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+    }
+    
+    /* Dark Theme */
+    .wallet-component.dark {
+        --bg-primary: #1f2937;
+        --bg-secondary: #374151;
+        --bg-hover: #4b5563;
+        --text-primary: #f9fafb;
+        --text-secondary: #9ca3af;
+        --border-color: #374151;
+        --border-accent: #4b5563;
+        --error-bg: #7f1d1d;
+        --error-border: #991b1b;
+        --error-text: #fecaca;
+    }
+    
+    .wallet-container {
+        padding: 1.25rem;
+    }
+    
+    .wallet-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .wallet-header h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+    
+    .wallet-icon {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 9999px;
+    }
+    
+    .wallet-info {
+        margin-top: 1rem;
+    }
+    
+    .wallet-name {
+        font-size: 1.125rem;
+        font-weight: 500;
+        margin-bottom: 1rem;
+    }
+    
+    .wallet-card {
+        background-color: var(--bg-secondary);
+        border-radius: 0.5rem;
+        padding: 1rem;
+    }
+    
+    .wallet-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .wallet-detail {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .detail-label {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+    }
+    
+    .detail-value {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--text-primary);
+    }
+    
+    .address {
+        font-family: monospace;
+    }
+    
+    .chain-logo {
+        width: 1.25rem;
+        height: 1.25rem;
+        margin-left: 0.25rem;
+        border-radius: 33%;
+    }
+    
+    .balance-container {
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid var(--border-accent);
+    }
+    
+    .wallet-actions {
+        margin-top: 1.5rem;
+    }
+    
+    .disconnect-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 0.5rem 1rem;
+        background-color: #dc2626;
+        color: white;
+        font-weight: 500;
+        border-radius: 0.5rem;
+        transition: background-color 0.2s;
+    }
+    
+    .disconnect-button:hover {
+        background-color: #b91c1c;
+    }
+    
+    .button-icon {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+    
+    .connect-header {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .error-container {
+        margin-bottom: 1rem;
+        padding: 0.75rem;
+        background-color: var(--error-bg);
+        border: 1px solid var(--error-border);
+        border-radius: 0.5rem;
+    }
+    
+    .error-message {
+        font-size: 0.875rem;
+        color: var(--error-text);
+    }
+    
+    .error-code {
+        font-size: 0.75rem;
+        color: var(--error-text);
+        margin-top: 0.25rem;
+    }
+    
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 0;
+    }
+    
+    .loading-spinner {
+        width: 2.5rem;
+        height: 2.5rem;
+        border: 0.25rem solid #60a5fa;
+        border-top-color: transparent;
+        border-radius: 9999px;
+        animation: spin 1s linear infinite;
+        margin-bottom: 0.75rem;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .loading-text {
+        color: var(--text-secondary);
+    }
+    
+    .no-wallet-message {
+        text-align: center;
+    }
+    
+    .warning-icon {
+        height: 3rem;
+        width: 3rem;
+        color: var(--text-secondary);
+        margin: 0 auto 0.75rem;
+    }
+    
+    .wallets-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .wallet-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem;
+        background-color: var(--bg-secondary);
+        border-radius: 0.5rem;
+        transition: background-color 0.2s;
+    }
+    
+    .wallet-item:hover {
+        background-color: var(--bg-hover);
+    }
+    
+    .wallet-item-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .wallet-item-icon {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 9999px;
+    }
+    
+    .wallet-item-name {
+        font-weight: 500;
+    }
+    
+    .connect-button {
+        padding: 0.5rem 1rem;
+        background-color: #2563eb;
+        color: white;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border-radius: 0.5rem;
+        transition: background-color 0.2s;
+    }
+    
+    .connect-button:hover:not(:disabled) {
+        background-color: #1d4ed8;
+    }
+    
+    .connect-button:disabled {
+        background-color: #93c5fd;
+        cursor: not-allowed;
+    }
+    
+    .loading-state {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .loading-icon {
+        animation: spin 1s linear infinite;
+        height: 1rem;
+        width: 1rem;
+    }
+</style>
