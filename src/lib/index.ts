@@ -3,7 +3,6 @@ export { default as Wallet } from './components/Wallet.svelte';
 export {
 	availableWallets,
 	wallet,
-	walletError,
 	connectWallet,
 	disconnectWallet,
 	handleAnnounceProvider,
@@ -20,3 +19,5 @@ export type {
 } from './types/eip6963.js';
 
 export { formatEth } from './utils/index.js';
+
+export { getChainInfo } from './chain/index.js';

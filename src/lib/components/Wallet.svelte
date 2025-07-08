@@ -7,7 +7,6 @@
 		handleAnnounceProvider,
 		isConnecting,
 		wallet,
-		walletError
 	} from '$states/wallet.svelte.js';
 	import { formatEth } from '$utils/index.js';
 	import { onMount } from 'svelte';
@@ -92,11 +91,11 @@
 	{:else}
 		<div class="wallet-container">
 			<h2 class="connect-header">Connect Wallet</h2>
-			{#if walletError.message}
+			{#if wallet.error}
 				<div class="error-container">
-					<p class="error-message">Error: {walletError.message}</p>
-					{#if walletError.code}
-						<p class="error-code">Code: {walletError.code}</p>
+					<p class="error-message">Error: {wallet.error.message}</p>
+					{#if wallet.error.code}
+						<p class="error-code">Code: {wallet.error.code}</p>
 					{/if}
 				</div>
 			{/if}

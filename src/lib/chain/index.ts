@@ -3,7 +3,7 @@ interface ChainInfo {
 	logo: string;
 }
 
-export const CHAIN: Record<number, ChainInfo> = {
+const CHAIN: Record<number, ChainInfo> = {
 	1: {
 		name: 'Ethereum Mainnet',
 		logo: 'https://static.cx.metamask.io/api/v1/tokenIcons/1/0x0000000000000000000000000000000000000000.png'
@@ -22,13 +22,16 @@ export const CHAIN: Record<number, ChainInfo> = {
 	}
 };
 
-export function getChainInfo(chainId: bigint | number | string | undefined): ChainInfo {
+export function getChainInfo(chainId: bigint | number | string): ChainInfo {
+
 	const id = Number(chainId);
+
 	if (!chainId || !CHAIN.hasOwnProperty(id)) {
 		return {
-			name: 'Unknown chain. You can add it with a pull request on GitHub.',
+			name: `Unknown chain (${id}). You can add it with a pull request on GitHub.`,
 			logo: 'https://static.cx.metamask.io/api/v1/tokenIcons/1/0x0000000000000000000000000000000000000000.png'
 		};
 	}
+
 	return CHAIN[id];
 }

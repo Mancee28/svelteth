@@ -1,29 +1,38 @@
-import type { EIP6963ProviderDetail } from '$types/eip6963.js';
+import type { EIP6963ProviderDetail, EIP6963ProviderInfo } from '$types/eip6963.js';
 import type { EIP1193Provider } from 'eip1193-types';
+import type { JsonRpcSigner } from 'ethers';
 import type { BrowserProvider } from 'ethers';
 import { ethers } from 'ethers';
 
-export interface WalletState extends EIP6963ProviderDetail {
-	ethersProvider: BrowserProvider;
+export interface WalletError {
+	message: string;
+	code?: number | string;
+}
+
+export interface WalletState {
+	info: EIP6963ProviderInfo;
+	provider: BrowserProvider | null;
+	signer: JsonRpcSigner | null;
 	address: string;
-	balance?: bigint;
-	chainId?: bigint;
+	balance: bigint;
+	chainId: bigint;
 	isConnected: boolean;
+	error: WalletError | null;
 }
 
 export let availableWallets = $state<{ list: EIP6963ProviderDetail[] }>({ list: [] });
 
 export let wallet = $state<WalletState>({
 	info: { uuid: '', name: '', icon: '', rdns: '' },
-	provider: {} as EIP1193Provider,
-	ethersProvider: {} as ethers.BrowserProvider,
+	provider: null,
+	signer: null,
 	address: '',
-	balance: undefined,
-	chainId: undefined,
-	isConnected: false
+	balance: 0n,
+	chainId: 0n,
+	isConnected: false,
+	error: null
 });
 
-export let walletError = $state<{ message: string; code?: string }>({ message: '' });
 
 let connecting = $state(false);
 
@@ -42,9 +51,6 @@ export async function connectWallet(w: EIP6963ProviderDetail) {
 	if (connecting) return;
 	connecting = true;
 
-	walletError.message = '';
-	walletError.code = undefined;
-
 	const eth = w.provider as EIP1193Provider;
 
 	try {
@@ -55,8 +61,7 @@ export async function connectWallet(w: EIP6963ProviderDetail) {
 		}
 	} catch (err: any) {
 		connecting = false;
-		walletError.message = err?.message || 'Failed to connect wallet';
-		walletError.code = err?.code;
+		wallet.error = { message: err?.message || 'Failed to connect wallet', code: err?.code };
 		return;
 	}
 
@@ -66,32 +71,34 @@ export async function connectWallet(w: EIP6963ProviderDetail) {
 	const chain = await bp.getNetwork();
 
 	wallet.info = w.info;
-	wallet.provider = eth;
-	wallet.ethersProvider = bp;
+	wallet.provider = bp;
+	wallet.signer = signer;
 	wallet.address = address;
 	wallet.balance = await bp.getBalance(address);
 	wallet.chainId = chain.chainId;
+	wallet.isConnected = true;
 
 	eth.on('accountsChanged', async (accounts: string[]) => {
-		if (accounts.length > 0 && wallet.isConnected) {
-			wallet.address = accounts[0];
-			wallet.ethersProvider = new ethers.BrowserProvider(wallet.provider);
-			wallet.balance = await wallet.ethersProvider.getBalance(wallet.address);
-		} else if (wallet.address) {
+		if (accounts.length === 0) {
 			disconnectWallet();
+			return;
 		}
+		wallet.address = accounts[0];
+		wallet.provider = new ethers.BrowserProvider(eth);
+		wallet.signer = await wallet.provider.getSigner();
+		wallet.balance = await wallet.provider.getBalance(wallet.address);
 	});
 
 	eth.on('chainChanged', async (chainId: string) => {
 		wallet.chainId = BigInt(chainId);
-		wallet.ethersProvider = new ethers.BrowserProvider(wallet.provider);
-		wallet.balance = await wallet.ethersProvider.getBalance(wallet.address);
+		wallet.provider = new ethers.BrowserProvider(eth);
+		wallet.signer = await wallet.provider.getSigner();
+		wallet.balance = await wallet.provider.getBalance(wallet.address);
 	});
 
 	localStorage.setItem('walletRDNS', w.info.rdns);
 
 	connecting = false;
-	wallet.isConnected = true;
 }
 
 export function isConnecting() {
@@ -99,19 +106,15 @@ export function isConnecting() {
 }
 
 export async function disconnectWallet() {
-	await wallet.ethersProvider.send('wallet_revokePermissions', [
-		{
-			eth_accounts: {}
-		}
-	]);
 
 	wallet.info = { uuid: '', name: '', icon: '', rdns: '' };
-	wallet.provider = {} as EIP1193Provider;
-	wallet.ethersProvider = {} as ethers.BrowserProvider;
+	wallet.provider = null;
+	wallet.signer = null;
 	wallet.address = '';
-	wallet.balance = undefined;
-	wallet.chainId = undefined;
+	wallet.balance = 0n;
+	wallet.chainId = 0n;
 	wallet.isConnected = false;
+	wallet.error = null;
 
 	localStorage.removeItem('walletRDNS');
 }
