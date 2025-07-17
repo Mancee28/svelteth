@@ -8,7 +8,6 @@
 - ⚡ **Reactive State**: All wallet and provider states are fully reactive, thanks to Svelte 5.
 - 🦊 **Multi-Wallet Support**: Detect and connect to multiple wallet extensions.
 - 🛡️ **TypeScript Support**: Fully typed for safety and autocompletion.
-- 🧩 **Composable**: Use as Svelte components or state modules.
 
 ## Installation
 
@@ -18,27 +17,45 @@ npm install svelteth
 
 ## Usage
 
-Import the `Wallet` component and add it to your Svelte page:
-
-```svelte
-<script lang="ts">
-	import { Wallet } from 'svelteth';
-</script>
-
-<Wallet theme={'dark'} />
-```
-
-Or use the reactive wallet state and actions directly:
+Use the reactive wallet state and actions directly:
 
 ```typescript
-import { wallet, connectWallet, disconnectWallet } from 'svelteth';
+import {
+  availableWallets,
+  wallet,
+  connectWallet,
+  disconnectWallet,
+  listenToProviderEvents,
+  isConnecting,
+  isSearching,
+  signMessage,
+  signTypedData,
+  sendTransaction,
+} from 'svelteth';
 ```
 
 ## Why Svelteth?
 
 - **Simplifies Web3 integration** in Svelte apps.
-- **Reactive by design**: All wallet and provider changes update your UI instantly.
-- **Extensible**: Use your own UI or the provided components.
+- **Reactive by design**: All wallet and provider changes update your UI instantly thanks to Svelte5.
+
+## Add Your Own Chain
+
+Want to see your chain supported in Svelteth? You can easily add it by editing the chain file:
+
+- Open `src/lib/chain/index.ts`
+- Add a new entry to the `CHAIN` constant with your chain's ID, name, and logo.
+
+Example:
+
+```typescript
+CHAIN[12345] = {
+  name: 'Your Chain Name',
+  logo: 'URL to your chain logo'
+};
+```
+
+Feel free to contribute with a pull request on GitHub to make it available for everyone!
 
 ## License
 
