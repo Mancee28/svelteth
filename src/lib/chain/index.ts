@@ -23,7 +23,6 @@ const CHAIN: Record<number, ChainInfo> = {
 };
 
 export function getChainInfo(chainId: bigint | number | string): ChainInfo {
-
 	const id = Number(chainId);
 
 	if (!chainId || !CHAIN.hasOwnProperty(id)) {

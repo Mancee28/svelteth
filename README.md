@@ -25,7 +25,7 @@ Import the `Wallet` component and add it to your Svelte page:
 	import { Wallet } from 'svelteth';
 </script>
 
-<Wallet theme={'dark'}/>
+<Wallet theme={'dark'} />
 ```
 
 Or use the reactive wallet state and actions directly:

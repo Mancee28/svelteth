@@ -9,7 +9,7 @@
 		wallet,
 		isSearching,
 		signMessage,
-		signTypedData,
+		signTypedData
 	} from '$states/wallet.svelte.js';
 	import { formatBalance, shorten } from '$utils/index.js';
 
@@ -23,12 +23,12 @@
 		listenToProviderEvents();
 	});
 
-	let signResult: string = $state("");
-	let signError: string = $state("");
+	let signResult: string = $state('');
+	let signError: string = $state('');
 
 	async function testSign() {
-		signResult = "";
-		signError = "";
+		signResult = '';
+		signError = '';
 		try {
 			signResult = await signMessage('Test message');
 		} catch (e: any) {
@@ -36,38 +36,38 @@
 		}
 	}
 
-	let signTypedResult: string = $state("");
-	let signTypedError: string = $state("");
+	let signTypedResult: string = $state('');
+	let signTypedError: string = $state('');
 
 	const testTypedData = {
 		types: {
 			EIP712Domain: [
-				{ name: "name", type: "string" },
-				{ name: "version", type: "string" },
-				{ name: "chainId", type: "uint256" },
-				{ name: "verifyingContract", type: "address" }
+				{ name: 'name', type: 'string' },
+				{ name: 'version', type: 'string' },
+				{ name: 'chainId', type: 'uint256' },
+				{ name: 'verifyingContract', type: 'address' }
 			],
 			Person: [
-				{ name: "wallet", type: "address" },
-				{ name: "name", type: "string" }
+				{ name: 'wallet', type: 'address' },
+				{ name: 'name', type: 'string' }
 			]
 		},
-		primaryType: "Person",
+		primaryType: 'Person',
 		domain: {
-			name: "Test DApp",
-			version: "1",
+			name: 'Test DApp',
+			version: '1',
 			chainId: Number(wallet.chainId),
-			verifyingContract: "0x0000000000000000000000000000000000000000"
+			verifyingContract: '0x0000000000000000000000000000000000000000'
 		},
 		message: {
 			wallet: wallet.addresses[0],
-			name: "Andrea"
+			name: 'Andrea'
 		}
 	};
 
 	async function testSignTyped() {
-		signTypedResult = "";
-		signTypedError = "";
+		signTypedResult = '';
+		signTypedError = '';
 		try {
 			signTypedResult = await signTypedData(testTypedData);
 		} catch (e: any) {
