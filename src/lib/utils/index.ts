@@ -1,7 +1,9 @@
-import { ethers } from 'ethers';
+export function shorten(addr: string) {
+    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+}
 
-/** Format ETH balance with 6 decimal places max */
-export function formatEth(balance: bigint): string {
-	const eth = ethers.formatEther(balance);
-	return parseFloat(parseFloat(eth).toFixed(6)).toString();
+export function formatBalance(balance: bigint, fixed = 4): string {
+    if (balance === BigInt(0)) return '0 ETH';
+    const ethValue = Number(balance) / 1e18;
+    return `${ethValue.toFixed(fixed)}`;
 }
