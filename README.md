@@ -21,16 +21,15 @@ Use the reactive wallet state and actions directly:
 
 ```typescript
 import {
-  availableWallets,
-  wallet,
-  connectWallet,
-  disconnectWallet,
-  listenToProviderEvents,
-  isConnecting,
-  isSearching,
-  signMessage,
-  signTypedData,
-  sendTransaction,
+	availableWallets,
+	wallet,
+	connectWallet,
+	disconnectWallet,
+	listenToProviderEvents,
+	isConnecting,
+	isSearching,
+	signMessage,
+	sendTransaction
 } from 'svelteth';
 ```
 
@@ -50,8 +49,8 @@ Example:
 
 ```typescript
 CHAIN[12345] = {
-  name: 'Your Chain Name',
-  logo: 'URL to your chain logo'
+	name: 'Your Chain Name',
+	logo: 'URL to your chain logo'
 };
 ```
 

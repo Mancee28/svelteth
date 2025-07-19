@@ -19,6 +19,10 @@ const CHAIN: Record<number, ChainInfo> = {
 	59144: {
 		name: 'Linea',
 		logo: 'https://static.cx.metamask.io/api/v1/tokenIcons/59144/0x0000000000000000000000000000000000000000.png'
+	},
+	11155111: {
+		name: 'Sepolia',
+		logo: 'https://moralis.com/wp-content/uploads/web3wiki/1147-sepolia/637aee14aa9d9f521437ec16_hYC2y965v3QD7fEoVvutzGbJzVGLSOk6RZPwEQWcA_E-300x300.jpeg'
 	}
 };
 

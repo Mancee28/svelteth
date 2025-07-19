@@ -7,9 +7,10 @@ export {
 	isConnecting,
 	isSearching,
 	signMessage,
-	signTypedData,
 	sendTransaction
 } from './states/wallet.svelte';
+
+export { txTracker } from './states/txTracker.svelte'; 
 
 export type { WalletState } from './states/wallet.svelte';
 
@@ -20,13 +21,12 @@ export type {
 	EIP6963RequestProviderEvent
 } from './types/eip6963.js';
 
+export type { EIP1193Provider } from './types/eip1193.js';
+
+export type { GasEstimates } from './types/eip1559.js';
+
+export type { EthereumTransaction } from './types/eip2718.js';
+
 export { getChainInfo } from './chain/index.js';
 
-export { shorten, formatBalance } from './utils/index.js';
-
-export type {
-	EIP712TypedData,
-	EIP712Domain,
-	EIP712TypeField,
-	EIP712Types
-} from './types/eip712.js';
+export { type Hex, shorten, formatEth, formatGwei, toHex, isHex } from './utils/index.js';

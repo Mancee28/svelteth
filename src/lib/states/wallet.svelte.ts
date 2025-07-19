@@ -1,7 +1,8 @@
 import { browser } from '$app/environment';
+import type { EIP1193Provider } from '$types/eip1193.js';
+import type { GasEstimates } from '$types/eip1559.js';
+import type { EthereumTransaction } from '$types/eip2718.js';
 import type { EIP6963ProviderDetail, EIP6963ProviderInfo } from '$types/eip6963.js';
-import type { EIP712TypedData } from '$types/eip712.js';
-import type { EIP1193Provider } from 'eip1193-types';
 
 /**
  *  Interface for wallet error details
@@ -20,6 +21,7 @@ export interface WalletState {
 	addresses: string[]; // List of wallet addresses
 	chainId: bigint; // Current chain ID
 	balance: bigint; // Current balance in wei
+	gas: GasEstimates; // Gas estimates (base fee and priority fees)
 	isConnected: boolean; // Connection status
 	error: WalletError | null; // Error details, if any
 }
@@ -34,6 +36,14 @@ export let wallet = $state<WalletState>({
 	chainId: 0n,
 	balance: 0n,
 	isConnected: false,
+	gas: {
+		baseFee: 0n,
+		priority: {
+			safe: 0n,
+			average: 0n,
+			fast: 0n
+		}
+	},
 	error: null
 });
 
@@ -116,8 +126,11 @@ export async function connectWallet(w: EIP6963ProviderDetail) {
 
 		// 4. Set balance for the first account
 		await setBalance();
+		
+		// 5. Set gas fees
+		startGasPolling();
 
-		// 5. Mark as connected
+		// 6. Mark as connected
 		wallet.isConnected = true;
 		localStorage.setItem('walletRDNS', w.info.rdns);
 
@@ -135,7 +148,7 @@ export async function connectWallet(w: EIP6963ProviderDetail) {
  */
 function attachProviderListeners(provider: EIP1193Provider) {
 	// Listen for account changes
-	provider.on('accountsChanged', async (accounts: string[]) => {
+	provider.on!('accountsChanged', async (accounts: string[]) => {
 		wallet.addresses = accounts;
 		if (accounts.length === 0) {
 			disconnectWallet();
@@ -145,13 +158,18 @@ function attachProviderListeners(provider: EIP1193Provider) {
 	});
 
 	// Listen for chain changes
-	provider.on('chainChanged', async (chainId: string) => {
+	provider.on!('chainChanged', async (chainId: string) => {
 		wallet.chainId = BigInt(chainId);
 		await setBalance();
+		await setGasFees();
+	});
+
+	provider.on!('block' , async () => {
+		await setGasFees();
 	});
 }
 
-/**
+/**	
  * Sets the balance for the first account.
  */
 async function setBalance() {
@@ -161,6 +179,45 @@ async function setBalance() {
 		params: [wallet.addresses[0], 'latest']
 	})) as string;
 	wallet.balance = BigInt(hexWei);
+}
+
+function startGasPolling() {
+	setGasFees(); // Initial fetch
+	setInterval(setGasFees, 5000);
+}
+
+/**
+ * Sets the gas fee.
+ */
+export async function setGasFees() {
+	if (!wallet.provider) return;
+
+	try {
+		const res = await wallet.provider.request({
+			method: 'eth_feeHistory',
+			params: [1, 'latest', [0, 50, 75]] // safe = 0, avg = 50, fast = 90 percentile
+		}) as {
+			baseFeePerGas: string[];
+			reward: string[][];
+		};
+
+		const baseFee = BigInt(res.baseFeePerGas[0]);
+		const rewards = res.reward[0]; // [safe, avg, fast]
+
+		wallet.gas = {
+			baseFee,
+			priority: {
+				safe: BigInt(rewards[0] || '0x0'),
+				average: BigInt(rewards[1] || '0x0'),
+				fast: BigInt(rewards[2] || '0x0')
+			}
+		};
+
+		console.log('EIP-1559 gas data fetched:', wallet.gas);
+
+	} catch (err) {
+		console.error('Failed to fetch EIP-1559 gas data', err);
+	}
 }
 
 /**
@@ -183,24 +240,11 @@ export async function signMessage(message: string): Promise<string> {
 }
 
 /**
- * Signs EIP-712 typed data (typically for permit, off-chain order, etc.)
- * `typedData` must be serialized as a JSON string.
- */
-export async function signTypedData(typedData: EIP712TypedData): Promise<string> {
-	ensureReady();
-	const from = wallet.addresses[0];
-	return (await wallet.provider!.request({
-		method: 'eth_signTypedData_v4',
-		params: [from, JSON.stringify(typedData)]
-	})) as string;
-}
-
-/**
  * Signs and sends a transaction.
  * `tx` follows the JSON-RPC syntax (gas, gasPrice, to, data, value, chainId…).
  * Returns the transaction hash.
  */
-export async function sendTransaction(tx: Record<string, any>): Promise<string> {
+export async function sendTransaction(tx: EthereumTransaction): Promise<string> {
 	ensureReady();
 	const from = wallet.addresses[0];
 	return (await wallet.provider!.request({
@@ -226,7 +270,16 @@ export function disconnectWallet() {
 	wallet.provider = null;
 	wallet.addresses = [];
 	wallet.chainId = 0n;
+	wallet.balance = 0n;
 	wallet.isConnected = false;
+	wallet.gas = {
+		baseFee: 0n,
+		priority: {
+			safe: 0n,
+			average: 0n,
+			fast: 0n
+		}
+	};
 	wallet.error = null;
 	localStorage.removeItem('walletRDNS');
 }
