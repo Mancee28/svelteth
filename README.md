@@ -51,11 +51,6 @@ you need to call `listenToProviderEvents()` inside the Svelte `onMount` lifecycl
 </script>
 ```
 
-## Why Svelteth?
-
-- **Simplifies Web3 integration** in Svelte apps.
-- **Reactive by design**: All wallet and provider changes update your UI instantly thanks to Svelte5.
-
 ## Add Your Own Chain
 
 Want to see your chain supported in Svelteth? You can easily add it by editing the chain file:
@@ -63,13 +58,11 @@ Want to see your chain supported in Svelteth? You can easily add it by editing t
 - Open `src/lib/chain/index.ts`
 - Add a new entry to the `CHAIN` constant with your chain's ID, name, and logo.
 
-Example:
-
 ```typescript
-CHAIN[12345] = {
+ 12345 :{
 	name: 'Your Chain Name',
 	logo: 'URL to your chain logo'
-};
+ },
 ```
 
 Feel free to contribute with a pull request on GitHub to make it available for everyone!
