@@ -8,11 +8,19 @@ const CHAIN: Record<number, ChainInfo> = {
 		name: 'Ethereum Mainnet',
 		logo: 'https://static.cx.metamask.io/api/v1/tokenIcons/1/0x0000000000000000000000000000000000000000.png'
 	},
+	998: {
+		name: 'Hyperliquid Testnet',
+		logo: 'https://hyperevmscan.io/assets/hype/images/svg/logos/chain-light.svg'
+	},
+	999: {
+		name: 'Hyperliquid',
+		logo: 'https://hyperevmscan.io/assets/hype/images/svg/logos/chain-light.svg'
+	},
 	8453: {
 		name: 'Base',
 		logo: 'https://static.cx.metamask.io/api/v1/tokenIcons/8453/0x0000000000000000000000000000000000000000.png'
 	},
-	42162: {
+	42161: {
 		name: 'Arbitrum',
 		logo: 'https://static.cx.metamask.io/api/v1/tokenIcons/42161/0x0000000000000000000000000000000000000000.png'
 	},

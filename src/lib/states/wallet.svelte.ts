@@ -1,4 +1,3 @@
-import { browser } from '$app/environment';
 import type { EIP1193Provider } from '$types/eip1193.js';
 import type { GasEstimates } from '$types/eip1559.js';
 import type { EthereumTransaction } from '$types/eip2718.js';
@@ -62,7 +61,7 @@ export let availableWallets = $state<{ list: EIP6963ProviderDetail[] }>({ list: 
  * Returns a cleanup function to remove listeners.
  */
 export function listenToProviderEvents() {
-	if (!browser) throw new Error('listenToProviderEvents can only be called in the browser.');
+	if (!window) throw new Error('listenToProviderEvents can only be called in the browser.');
 	searching = true;
 	window.addEventListener('eip6963:announceProvider', handleAnnounceProvider);
 
@@ -126,7 +125,7 @@ export async function connectWallet(w: EIP6963ProviderDetail) {
 
 		// 4. Set balance for the first account
 		await setBalance();
-		
+
 		// 5. Set gas fees
 		startGasPolling();
 
@@ -164,12 +163,12 @@ function attachProviderListeners(provider: EIP1193Provider) {
 		await setGasFees();
 	});
 
-	provider.on!('block' , async () => {
+	provider.on!('block', async () => {
 		await setGasFees();
 	});
 }
 
-/**	
+/**
  * Sets the balance for the first account.
  */
 async function setBalance() {
@@ -193,10 +192,10 @@ export async function setGasFees() {
 	if (!wallet.provider) return;
 
 	try {
-		const res = await wallet.provider.request({
+		const res = (await wallet.provider.request({
 			method: 'eth_feeHistory',
 			params: [1, 'latest', [0, 50, 75]] // safe = 0, avg = 50, fast = 90 percentile
-		}) as {
+		})) as {
 			baseFeePerGas: string[];
 			reward: string[][];
 		};
@@ -214,7 +213,6 @@ export async function setGasFees() {
 		};
 
 		console.log('EIP-1559 gas data fetched:', wallet.gas);
-
 	} catch (err) {
 		console.error('Failed to fetch EIP-1559 gas data', err);
 	}

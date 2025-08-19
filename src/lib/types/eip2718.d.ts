@@ -1,4 +1,4 @@
-import type { Hex } from "$utils/index.ts";
+import type { Hex } from '$utils/index.ts';
 
 export interface EthereumTransaction {
 	to?: string;

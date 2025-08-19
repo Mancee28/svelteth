@@ -10,8 +10,6 @@ export {
 	sendTransaction
 } from './states/wallet.svelte';
 
-export { txTracker } from './states/txTracker.svelte'; 
-
 export type { WalletState } from './states/wallet.svelte';
 
 export type {

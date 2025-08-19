@@ -33,6 +33,22 @@ import {
 } from 'svelteth';
 ```
 
+## Lifecycle Setup
+
+To make sure **Svelteth** can detect available wallets via **EIP-6963**,  
+you need to call `listenToProviderEvents()` inside the Svelte `onMount` lifecycle:
+
+```typescript
+<script lang="ts">
+	import { onMount } from 'svelte';
+	import { listenToProviderEvents } from 'svelteth';
+
+	onMount(() => {
+		listenToProviderEvents();
+	});
+</script>
+```
+
 ## Why Svelteth?
 
 - **Simplifies Web3 integration** in Svelte apps.
