@@ -1,5 +1,7 @@
 # Svelteth
 
+**Try Svelteth live demo at: [https://svelteth-demo.vercel.app/](https://svelteth-demo.vercel.app/)**
+
 **Svelteth** is an open-source library designed to simplify and amplify Web3 adoption in Svelte 5 projects. By leveraging Svelte's reactivity, Svelteth makes it easy to connect, manage, and interact with Ethereum wallets and providers in your Svelte applications.
 
 ## Features
