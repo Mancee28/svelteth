@@ -1,13 +1,25 @@
 export {
-	availableWallets,
+	// Multi-wallet state
+	wallets,
+	activeWalletId,
 	wallet,
+	// Wallet discovery
+	availableWallets,
+	listenToProviderEvents,
+	isSearching,
+	// Connection management
 	connectWallet,
 	disconnectWallet,
-	listenToProviderEvents,
 	isConnecting,
-	isSearching,
+	// Multi-wallet helpers
+	getConnectedWalletIds,
+	getWallet,
+	switchWallet,
+	getAllWallets,
+	// Wallet actions
 	signMessage,
-	sendTransaction
+	sendTransaction,
+	setGasFees
 } from './states/wallet.svelte';
 
 export type { WalletState } from './states/wallet.svelte';
