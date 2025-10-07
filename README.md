@@ -31,7 +31,14 @@ import {
 	isConnecting,
 	isSearching,
 	signMessage,
-	sendTransaction
+	sendTransaction,
+	// Multi-wallet support
+	wallets,
+	activeWalletId,
+	getConnectedWalletIds,
+	getWallet,
+	switchWallet,
+	getAllWallets
 } from 'svelteth';
 ```
 
@@ -50,6 +57,58 @@ you need to call `listenToProviderEvents()` inside the Svelte `onMount` lifecycl
 	});
 </script>
 ```
+
+## Multi-Wallet Support
+
+Svelteth supports connecting and managing multiple wallets simultaneously. This is useful for:
+- Testing transactions between different accounts
+- Managing multiple identities
+- Switching between wallets without disconnecting
+
+### Working with Multiple Wallets
+
+```typescript
+import { 
+	wallets,           // Record of all connected wallets
+	activeWalletId,    // Currently active wallet ID
+	wallet,            // Get the active wallet
+	getWallet,         // Get a specific wallet by ID
+	switchWallet,      // Switch to a different wallet
+	getAllWallets,     // Get array of all connected wallets
+	getConnectedWalletIds  // Get list of wallet IDs
+} from 'svelteth';
+
+// Connect multiple wallets
+availableWallets.list.forEach(w => connectWallet(w));
+
+// Get all connected wallets
+const allWallets = getAllWallets();
+
+// Switch active wallet
+switchWallet('com.metamask'); // Use wallet's RDNS as ID
+
+// Get specific wallet
+const specificWallet = getWallet('com.coinbase.wallet');
+
+// Access active wallet (reactive)
+const activeWallet = wallet();
+
+// Disconnect specific wallet or all
+disconnectWallet('com.metamask'); // Disconnect one
+disconnectWallet('all');          // Disconnect all
+```
+
+### Wallet State
+
+Each wallet in the `wallets` object contains:
+- `info`: Wallet metadata (name, icon, rdns, uuid)
+- `provider`: EIP-1193 provider instance
+- `addresses`: Array of wallet addresses
+- `chainId`: Current chain ID
+- `balance`: Current balance in wei
+- `gas`: EIP-1559 gas estimates (baseFee and priority fees)
+- `isConnected`: Connection status
+- `error`: Error details, if any
 
 ## Add Your Own Chain
 

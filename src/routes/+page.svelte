@@ -314,13 +314,14 @@
 								{#if showMultiWalletDemo}
 									<div class="p-4 bg-white/5 rounded-xl space-y-3">
 										<div>
-											<label class="text-xs text-white/60 block mb-1">From (Active Wallet)</label>
-											<div class="text-sm text-white font-medium">{activeWallet.info.name}</div>
+											<label for="from-wallet" class="text-xs text-white/60 block mb-1">From (Active Wallet)</label>
+											<div id="from-wallet" class="text-sm text-white font-medium">{activeWallet.info.name}</div>
 										</div>
 
 										<div>
-											<label class="text-xs text-white/60 block mb-1">To</label>
+											<label for="recipient-wallet" class="text-xs text-white/60 block mb-1">To</label>
 											<select
+												id="recipient-wallet"
 												bind:value={selectedRecipient}
 												class="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
 											>
@@ -334,8 +335,9 @@
 										</div>
 
 										<div>
-											<label class="text-xs text-white/60 block mb-1">Amount (ETH)</label>
+											<label for="transfer-amount" class="text-xs text-white/60 block mb-1">Amount (ETH)</label>
 											<input
+												id="transfer-amount"
 												type="number"
 												bind:value={transferAmount}
 												step="0.001"
