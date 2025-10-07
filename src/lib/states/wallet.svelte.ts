@@ -334,7 +334,7 @@ export async function setGasFees(walletId?: string, w?: WalletState) {
 			}
 		};
 
-		console.log(`EIP-1559 gas data fetched for ${targetId}:`, targetWallet.gas);
+		console.log(`EIP-1559 gas data fetched for ${targetId}:`, $state.snapshot(targetWallet.gas));
 	} catch (err) {
 		console.error(`Failed to fetch EIP-1559 gas data for ${targetId}`, err);
 	}
