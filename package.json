@@ -3,6 +3,7 @@
 	"version": "0.3.2",
 	"description": "Web3 development for the rest of us. A Svelte library for building Ethereum dApps with ease.",
 	"license": "MIT",
+	"homepage": "https://svelteth-demo.vercel.app/",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/Mancee28/svelteth.git"
