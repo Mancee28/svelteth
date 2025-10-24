@@ -1,6 +1,6 @@
 {
 	"name": "svelteth",
-	"version": "0.4.0",
+	"version": "0.4.1",
 	"description": "Web3 development for the rest of us. A Svelte library for building Ethereum dApps with ease.",
 	"license": "MIT",
 	"homepage": "https://svelteth-demo.vercel.app/",
